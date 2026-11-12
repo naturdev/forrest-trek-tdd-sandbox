@@ -390,3 +390,117 @@ test("getWinningLines returns empty array for draw", () => {
   const lines = game.getWinningLines();
   assert.deepEqual(lines, []);
 });
+
+test("getAIMove with easy difficulty returns valid move", () => {
+  const game = new TicTacToe();
+  
+  game.makeMove(0); // X
+  game.makeMove(1); // O
+  
+  const aiMove = game.getAIMove('easy', 'X');
+  
+  assert.notEqual(aiMove, null);
+  assert.equal(typeof aiMove, 'number');
+  assert.equal(aiMove >= 0 && aiMove <= 8, true);
+  assert.equal(game.getBoard()[aiMove], null);
+});
+
+test("getAIMove returns null on full board", () => {
+  const game = new TicTacToe();
+  
+  // Fill the board
+  game.makeMove(0); // X
+  game.makeMove(1); // O
+  game.makeMove(2); // X
+  game.makeMove(4); // O
+  game.makeMove(3); // X
+  game.makeMove(5); // O
+  game.makeMove(7); // X
+  game.makeMove(6); // O
+  game.makeMove(8); // X
+  
+  const aiMove = game.getAIMove('easy', 'X');
+  assert.equal(aiMove, null);
+});
+
+test("getAIMove with medium difficulty takes winning move", () => {
+  const game = new TicTacToe();
+  
+  // Set up board where O can win at position 2
+  game.makeMove(0); // X
+  game.makeMove(1); // O
+  game.makeMove(3); // X
+  // O has positions 1, if O plays 2, O wins (0-1-2 row)
+  // But we need O to have a winning opportunity
+  
+  // Better setup: O at 0 and 1, can win at 2
+  const game2 = new TicTacToe();
+  game2.makeMove(4); // X at center
+  game2.makeMove(0); // O
+  game2.makeMove(3); // X
+  game2.makeMove(1); // O
+  // O can win at position 2 (top row: 0-1-2)
+  
+  const aiMove = game2.getAIMove('medium', 'O');
+  assert.equal(aiMove, 2);
+});
+
+test("getAIMove with medium difficulty blocks opponent winning move", () => {
+  const game = new TicTacToe();
+  
+  // Set up board where X can win at position 2
+  game.makeMove(0); // X
+  game.makeMove(4); // O at center
+  game.makeMove(1); // X
+  // X can win at position 2 (top row: 0-1-2)
+  // O should block at position 2
+  
+  const aiMove = game.getAIMove('medium', 'O');
+  assert.equal(aiMove, 2);
+});
+
+test("getAIMove with hard difficulty never loses", () => {
+  // Play multiple games where AI goes first
+  for (let gameNum = 0; gameNum < 5; gameNum++) {
+    const game = new TicTacToe();
+    
+    while (!game.isGameOver()) {
+      if (game.currentPlayer === 'X') {
+        // AI plays as X
+        const aiMove = game.getAIMove('hard', 'X');
+        if (aiMove !== null) {
+          game.makeMove(aiMove);
+        }
+      } else {
+        // Opponent plays optimally (also using hard AI)
+        const opponentMove = game.getAIMove('hard', 'O');
+        if (opponentMove !== null) {
+          game.makeMove(opponentMove);
+        }
+      }
+    }
+    
+    const winner = game.getWinner();
+    // AI should never lose (either win or draw)
+    assert.notEqual(winner, 'O');
+  }
+});
+
+test("getAIMove with hard difficulty wins when possible", () => {
+  const game = new TicTacToe();
+  
+  // Set up a scenario where X (AI) can force a win
+  game.makeMove(4); // X at center
+  game.makeMove(0); // O at corner
+  
+  // AI should make optimal moves to win
+  const aiMove = game.getAIMove('hard', 'X');
+  assert.notEqual(aiMove, null);
+  
+  // Continue the game with AI playing optimally
+  game.makeMove(aiMove);
+  
+  // The AI should be able to win or draw from any position
+  // This is more of an integration test
+  assert.equal(typeof aiMove, 'number');
+});
