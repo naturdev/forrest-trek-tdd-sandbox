@@ -246,3 +246,147 @@ test("reset clears move history", () => {
   
   assert.equal(game.getMoveHistory().length, 0);
 });
+
+test("getAvailableMoves returns all empty positions", () => {
+  const game = new TicTacToe();
+  
+  // Empty board
+  let available = game.getAvailableMoves();
+  assert.equal(available.length, 9);
+  assert.deepEqual(available, [0, 1, 2, 3, 4, 5, 6, 7, 8]);
+  
+  // After some moves
+  game.makeMove(0); // X
+  game.makeMove(4); // O
+  game.makeMove(8); // X
+  
+  available = game.getAvailableMoves();
+  assert.equal(available.length, 6);
+  assert.deepEqual(available, [1, 2, 3, 5, 6, 7]);
+});
+
+test("getAvailableMoves returns empty array on full board", () => {
+  const game = new TicTacToe();
+  
+  // Fill the board (draw scenario)
+  game.makeMove(0); // X
+  game.makeMove(1); // O
+  game.makeMove(2); // X
+  game.makeMove(4); // O
+  game.makeMove(3); // X
+  game.makeMove(5); // O
+  game.makeMove(7); // X
+  game.makeMove(6); // O
+  game.makeMove(8); // X
+  
+  const available = game.getAvailableMoves();
+  assert.equal(available.length, 0);
+  assert.deepEqual(available, []);
+});
+
+test("isBoardFull returns false on empty board", () => {
+  const game = new TicTacToe();
+  assert.equal(game.isBoardFull(), false);
+});
+
+test("isBoardFull returns false on partial board", () => {
+  const game = new TicTacToe();
+  game.makeMove(0);
+  game.makeMove(1);
+  game.makeMove(2);
+  
+  assert.equal(game.isBoardFull(), false);
+});
+
+test("isBoardFull returns true on full board", () => {
+  const game = new TicTacToe();
+  
+  // Fill the board
+  game.makeMove(0); // X
+  game.makeMove(1); // O
+  game.makeMove(2); // X
+  game.makeMove(4); // O
+  game.makeMove(3); // X
+  game.makeMove(5); // O
+  game.makeMove(7); // X
+  game.makeMove(6); // O
+  game.makeMove(8); // X
+  
+  assert.equal(game.isBoardFull(), true);
+});
+
+test("getWinningLines returns empty array when no winner", () => {
+  const game = new TicTacToe();
+  
+  game.makeMove(0); // X
+  game.makeMove(1); // O
+  
+  const lines = game.getWinningLines();
+  assert.deepEqual(lines, []);
+});
+
+test("getWinningLines returns horizontal line for top row win", () => {
+  const game = new TicTacToe();
+  
+  game.makeMove(0); // X
+  game.makeMove(3); // O
+  game.makeMove(1); // X
+  game.makeMove(4); // O
+  game.makeMove(2); // X wins
+  
+  const lines = game.getWinningLines();
+  assert.equal(lines.length, 1);
+  assert.equal(lines[0].type, 'row');
+  assert.equal(lines[0].index, 0);
+  assert.deepEqual(lines[0].positions, [0, 1, 2]);
+});
+
+test("getWinningLines returns vertical line for column win", () => {
+  const game = new TicTacToe();
+  
+  game.makeMove(0); // X
+  game.makeMove(1); // O
+  game.makeMove(3); // X
+  game.makeMove(2); // O
+  game.makeMove(6); // X wins
+  
+  const lines = game.getWinningLines();
+  assert.equal(lines.length, 1);
+  assert.equal(lines[0].type, 'col');
+  assert.equal(lines[0].index, 0);
+  assert.deepEqual(lines[0].positions, [0, 3, 6]);
+});
+
+test("getWinningLines returns diagonal line for diagonal win", () => {
+  const game = new TicTacToe();
+  
+  game.makeMove(0); // X
+  game.makeMove(1); // O
+  game.makeMove(4); // X
+  game.makeMove(2); // O
+  game.makeMove(8); // X wins
+  
+  const lines = game.getWinningLines();
+  assert.equal(lines.length, 1);
+  assert.equal(lines[0].type, 'diagonal');
+  assert.equal(lines[0].index, 0);
+  assert.deepEqual(lines[0].positions, [0, 4, 8]);
+});
+
+test("getWinningLines returns empty array for draw", () => {
+  const game = new TicTacToe();
+  
+  // Create a draw
+  game.makeMove(0); // X
+  game.makeMove(1); // O
+  game.makeMove(2); // X
+  game.makeMove(4); // O
+  game.makeMove(3); // X
+  game.makeMove(5); // O
+  game.makeMove(7); // X
+  game.makeMove(6); // O
+  game.makeMove(8); // X
+  
+  const lines = game.getWinningLines();
+  assert.deepEqual(lines, []);
+});

@@ -85,6 +85,45 @@ export class TicTacToe {
     return { success: true };
   }
 
+  getAvailableMoves() {
+    const available = [];
+    for (let i = 0; i < this.board.length; i++) {
+      if (this.board[i] === null) {
+        available.push(i);
+      }
+    }
+    return available;
+  }
+
+  isBoardFull() {
+    return this.board.every(cell => cell !== null);
+  }
+
+  getWinningLines() {
+    const lines = [];
+    const winPatterns = [
+      { type: 'row', index: 0, positions: [0, 1, 2] },
+      { type: 'row', index: 1, positions: [3, 4, 5] },
+      { type: 'row', index: 2, positions: [6, 7, 8] },
+      { type: 'col', index: 0, positions: [0, 3, 6] },
+      { type: 'col', index: 1, positions: [1, 4, 7] },
+      { type: 'col', index: 2, positions: [2, 5, 8] },
+      { type: 'diagonal', index: 0, positions: [0, 4, 8] },
+      { type: 'diagonal', index: 1, positions: [2, 4, 6] }
+    ];
+
+    for (const pattern of winPatterns) {
+      const [a, b, c] = pattern.positions;
+      if (this.board[a] !== null && 
+          this.board[a] === this.board[b] && 
+          this.board[a] === this.board[c]) {
+        lines.push(pattern);
+      }
+    }
+
+    return lines;
+  }
+
   _checkWinner() {
     // All possible winning combinations
     const winPatterns = [
