@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { TicTacToe } from "../src/tictactoe.js";
+import { createGameFromMoves, createGameFromBoard } from "../src/testHelpers.js";
 
 test("initial state has empty board and X starts", () => {
   const game = new TicTacToe();
@@ -50,87 +51,42 @@ test("makeMove rejects out of bounds position", () => {
 });
 
 test("detects horizontal win (top row)", () => {
-  const game = new TicTacToe();
-  
-  game.makeMove(0); // X
-  game.makeMove(3); // O
-  game.makeMove(1); // X
-  game.makeMove(4); // O
-  game.makeMove(2); // X wins
+  const game = createGameFromMoves([0, 3, 1, 4, 2]); // X wins
   
   assert.equal(game.getWinner(), 'X');
   assert.equal(game.isGameOver(), true);
 });
 
 test("detects vertical win (left column)", () => {
-  const game = new TicTacToe();
-  
-  game.makeMove(0); // X
-  game.makeMove(1); // O
-  game.makeMove(3); // X
-  game.makeMove(2); // O
-  game.makeMove(6); // X wins
+  const game = createGameFromMoves([0, 1, 3, 2, 6]); // X wins
   
   assert.equal(game.getWinner(), 'X');
   assert.equal(game.isGameOver(), true);
 });
 
 test("detects diagonal win (top-left to bottom-right)", () => {
-  const game = new TicTacToe();
-  
-  game.makeMove(0); // X
-  game.makeMove(1); // O
-  game.makeMove(4); // X
-  game.makeMove(2); // O
-  game.makeMove(8); // X wins
+  const game = createGameFromMoves([0, 1, 4, 2, 8]); // X wins
   
   assert.equal(game.getWinner(), 'X');
   assert.equal(game.isGameOver(), true);
 });
 
 test("detects diagonal win (top-right to bottom-left)", () => {
-  const game = new TicTacToe();
-  
-  game.makeMove(2); // X
-  game.makeMove(0); // O
-  game.makeMove(4); // X
-  game.makeMove(1); // O
-  game.makeMove(6); // X wins
+  const game = createGameFromMoves([2, 0, 4, 1, 6]); // X wins
   
   assert.equal(game.getWinner(), 'X');
   assert.equal(game.isGameOver(), true);
 });
 
 test("detects draw when board is full with no winner", () => {
-  const game = new TicTacToe();
-  
-  // Create a draw scenario:
-  // X O X
-  // X O O
-  // O X X
-  game.makeMove(0); // X
-  game.makeMove(1); // O
-  game.makeMove(2); // X
-  game.makeMove(4); // O
-  game.makeMove(3); // X
-  game.makeMove(5); // O
-  game.makeMove(7); // X
-  game.makeMove(6); // O
-  game.makeMove(8); // X
+  const game = createGameFromMoves([0, 1, 2, 4, 3, 5, 7, 6, 8]);
   
   assert.equal(game.getWinner(), 'draw');
   assert.equal(game.isGameOver(), true);
 });
 
 test("rejects moves after game is over", () => {
-  const game = new TicTacToe();
-  
-  // Create a winning scenario
-  game.makeMove(0); // X
-  game.makeMove(3); // O
-  game.makeMove(1); // X
-  game.makeMove(4); // O
-  game.makeMove(2); // X wins
+  const game = createGameFromMoves([0, 3, 1, 4, 2]); // X wins
   
   const result = game.makeMove(5);
   assert.equal(result.success, false);
@@ -326,13 +282,7 @@ test("getWinningLines returns empty array when no winner", () => {
 });
 
 test("getWinningLines returns horizontal line for top row win", () => {
-  const game = new TicTacToe();
-  
-  game.makeMove(0); // X
-  game.makeMove(3); // O
-  game.makeMove(1); // X
-  game.makeMove(4); // O
-  game.makeMove(2); // X wins
+  const game = createGameFromMoves([0, 3, 1, 4, 2]); // X wins
   
   const lines = game.getWinningLines();
   assert.equal(lines.length, 1);
@@ -342,13 +292,7 @@ test("getWinningLines returns horizontal line for top row win", () => {
 });
 
 test("getWinningLines returns vertical line for column win", () => {
-  const game = new TicTacToe();
-  
-  game.makeMove(0); // X
-  game.makeMove(1); // O
-  game.makeMove(3); // X
-  game.makeMove(2); // O
-  game.makeMove(6); // X wins
+  const game = createGameFromMoves([0, 1, 3, 2, 6]); // X wins
   
   const lines = game.getWinningLines();
   assert.equal(lines.length, 1);
@@ -358,13 +302,7 @@ test("getWinningLines returns vertical line for column win", () => {
 });
 
 test("getWinningLines returns diagonal line for diagonal win", () => {
-  const game = new TicTacToe();
-  
-  game.makeMove(0); // X
-  game.makeMove(1); // O
-  game.makeMove(4); // X
-  game.makeMove(2); // O
-  game.makeMove(8); // X wins
+  const game = createGameFromMoves([0, 1, 4, 2, 8]); // X wins
   
   const lines = game.getWinningLines();
   assert.equal(lines.length, 1);
@@ -374,18 +312,7 @@ test("getWinningLines returns diagonal line for diagonal win", () => {
 });
 
 test("getWinningLines returns empty array for draw", () => {
-  const game = new TicTacToe();
-  
-  // Create a draw
-  game.makeMove(0); // X
-  game.makeMove(1); // O
-  game.makeMove(2); // X
-  game.makeMove(4); // O
-  game.makeMove(3); // X
-  game.makeMove(5); // O
-  game.makeMove(7); // X
-  game.makeMove(6); // O
-  game.makeMove(8); // X
+  const game = createGameFromMoves([0, 1, 2, 4, 3, 5, 7, 6, 8]);
   
   const lines = game.getWinningLines();
   assert.deepEqual(lines, []);
