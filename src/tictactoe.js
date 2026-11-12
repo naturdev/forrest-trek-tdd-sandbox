@@ -3,6 +3,7 @@ export class TicTacToe {
     this.board = Array(9).fill(null);
     this.currentPlayer = 'X';
     this.winner = null;
+    this.moveHistory = [];
   }
 
   makeMove(position) {
@@ -23,6 +24,12 @@ export class TicTacToe {
 
     // Place the mark
     this.board[position] = this.currentPlayer;
+
+    // Record move in history
+    this.moveHistory.push({
+      position: position,
+      player: this.currentPlayer
+    });
 
     // Check for winner or draw
     this.winner = this._checkWinner();
@@ -51,6 +58,31 @@ export class TicTacToe {
     this.board = Array(9).fill(null);
     this.currentPlayer = 'X';
     this.winner = null;
+    this.moveHistory = [];
+  }
+
+  getMoveHistory() {
+    return [...this.moveHistory];
+  }
+
+  undo() {
+    if (this.moveHistory.length === 0) {
+      return { success: false, error: "No moves to undo" };
+    }
+
+    // Pop the last move
+    const lastMove = this.moveHistory.pop();
+
+    // Restore the board
+    this.board[lastMove.position] = null;
+
+    // Revert to the player who made that move
+    this.currentPlayer = lastMove.player;
+
+    // Recalculate winner and game over state
+    this.winner = this._checkWinner();
+
+    return { success: true };
   }
 
   _checkWinner() {

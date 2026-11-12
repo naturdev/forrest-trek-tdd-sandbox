@@ -152,3 +152,97 @@ test("reset clears board and restarts game", () => {
   assert.equal(game.getWinner(), null);
   assert.equal(game.isGameOver(), false);
 });
+
+test("getMoveHistory tracks all moves with position and player", () => {
+  const game = new TicTacToe();
+  
+  game.makeMove(0); // X
+  game.makeMove(4); // O
+  game.makeMove(1); // X
+  
+  const history = game.getMoveHistory();
+  assert.equal(history.length, 3);
+  assert.equal(history[0].position, 0);
+  assert.equal(history[0].player, 'X');
+  assert.equal(history[1].position, 4);
+  assert.equal(history[1].player, 'O');
+  assert.equal(history[2].position, 1);
+  assert.equal(history[2].player, 'X');
+});
+
+test("undo reverts last move and switches player back", () => {
+  const game = new TicTacToe();
+  
+  game.makeMove(0); // X
+  game.makeMove(4); // O
+  
+  const result = game.undo();
+  
+  assert.equal(result.success, true);
+  assert.equal(game.getBoard()[4], null);
+  assert.equal(game.currentPlayer, 'O');
+  assert.equal(game.getMoveHistory().length, 1);
+});
+
+test("undo works multiple times in sequence", () => {
+  const game = new TicTacToe();
+  
+  game.makeMove(0); // X
+  game.makeMove(1); // O
+  game.makeMove(2); // X
+  
+  game.undo(); // Undo X at position 2
+  assert.equal(game.getBoard()[2], null);
+  assert.equal(game.currentPlayer, 'X');
+  
+  game.undo(); // Undo O at position 1
+  assert.equal(game.getBoard()[1], null);
+  assert.equal(game.currentPlayer, 'O');
+  
+  game.undo(); // Undo X at position 0
+  assert.equal(game.getBoard()[0], null);
+  assert.equal(game.currentPlayer, 'X');
+  assert.equal(game.getMoveHistory().length, 0);
+});
+
+test("undo on empty history returns error", () => {
+  const game = new TicTacToe();
+  
+  const result = game.undo();
+  
+  assert.equal(result.success, false);
+  assert.equal(result.error, "No moves to undo");
+});
+
+test("undo after game over allows continuing the game", () => {
+  const game = new TicTacToe();
+  
+  // Create a winning scenario
+  game.makeMove(0); // X
+  game.makeMove(3); // O
+  game.makeMove(1); // X
+  game.makeMove(4); // O
+  game.makeMove(2); // X wins
+  
+  assert.equal(game.isGameOver(), true);
+  
+  // Undo the winning move
+  const result = game.undo();
+  
+  assert.equal(result.success, true);
+  assert.equal(game.isGameOver(), false);
+  assert.equal(game.getBoard()[2], null);
+  assert.equal(game.currentPlayer, 'X');
+});
+
+test("reset clears move history", () => {
+  const game = new TicTacToe();
+  
+  game.makeMove(0);
+  game.makeMove(1);
+  game.makeMove(2);
+  
+  game.reset();
+  
+  assert.equal(game.getMoveHistory().length, 0);
+});
